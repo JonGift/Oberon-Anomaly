@@ -46,36 +46,48 @@ def squadron(display_surf, commander, *args):
 	squad = list(temp)
 	altitude = 20
 	counter = 0
-	for i in range(len(squad)):
-		if rotate_checker(commander, squad[i]) != True:
-			return False
-		if counter == 0:
-			squad[i].y = commander.y - altitude
-			squad[i].x = commander.x - altitude
-			squad[i].rotate = commander.rotate
-			counter = 1
-		elif counter == 1:
-			squad[i].y = commander.y + altitude
-			squad[i].x = commander.x - altitude
-			squad[i].rotate = commander.rotate
-			counter = 0
-			altitude = altitude * 2
-		if commander.speed == 1:
-			squad[i].thrust_override = True
-		else:
-			squad[i].thrust_override = False
-		if commander.is_shooting == True:
-			squad[i].is_shooting = True
-		squad[i].formation = True
+	if commander.hp > 0:
+		for i in range(len(squad)):
+			if squad[i].hp > 0:
+				if rotate_checker(commander, squad[i]) != True:
+					return False
+				if counter == 0:
+					squad[i].y = commander.y - altitude
+					squad[i].x = commander.x - altitude
+					squad[i].rotate = commander.rotate
+					counter = 1
+				elif counter == 1:
+					squad[i].y = commander.y + altitude
+					squad[i].x = commander.x - altitude
+					squad[i].rotate = commander.rotate
+					counter = 0
+					altitude = altitude * 2
+				if commander.speed == 1:
+					squad[i].thrust_override = True
+				else:
+					squad[i].thrust_override = False
+				if commander.is_shooting == True:
+					squad[i].is_shooting = True
+				squad[i].formation = True
+			else:
+				squad[i].formation = False
+	else:
+		for i in range(len(squad)):
+			squad[i].formation = False
+		return False
 	return True
 
 class fighter:
-	def __init__(self, ship_type = '1', thruster = '1', max_acc = 0, proj_speed = 5):
+	def __init__(self, ship_type = '1', thruster = '1', max_acc = 0, proj_speed = 3, team = 0):
+		self.name = 'fighter'
 		self.ship_type = ship_type
 		self.thruster = thruster
+		self.team = team
 		self.ship = pygame.image.load('img/fighter_' + self.ship_type + '.png')
 		self.thruster = pygame.image.load('img/f_thrust_' + self.thruster + '.png')
+		self.ship_destroyed = pygame.image.load('img/fighter_' + self.ship_type + '_destroyed.png')
 		self.speed = 0
+		self.hp = 10
 		self.x = 0
 		self.y = 0
 		self.x2 = 0
@@ -97,31 +109,38 @@ class fighter:
 		
 	
 	def update_ship(self, display_surf):
-		#Needs to rotate on center
-		if self.rotate < 0:
-			self.rotate = 360 + self.rotate
-		if self.rotate > 360:
-			self.rotate = self.rotate - 360
-		
-		self.ship_final = pygame.transform.rotate(self.ship, self.rotate)
-		self.thrust_final = pygame.transform.rotate(self.thruster, self.rotate)
-		display_surf.blit(self.ship_final, (self.move_calc(self.rotate, self.speed+self.acceleration)))
-		self.rect[0] = self.x
-		self.rect[1] = self.y
-		if self.speed == 1:
-			display_surf.blit(self.thrust_final, (self.move_calc(self.rotate, self.speed+self.acceleration)))
-			if self.acceleration < self.max_acc:
-				if self.counter2 < 10:
-					self.counter2 +=1
-				else:
-					self.counter2 = 0
-					self.acceleration += 1
+		if self.hp > 0:
+			if self.rotate < 0:
+				self.rotate = 360 + self.rotate
+			if self.rotate > 360:
+				self.rotate = self.rotate - 360
+			self.ship_final = pygame.transform.rotate(self.ship, self.rotate)
+			self.thrust_final = pygame.transform.rotate(self.thruster, self.rotate)
+			self.ship_destroyed_final = pygame.transform.rotate(self.ship_destroyed, self.rotate)
+			display_surf.blit(self.ship_final, (self.move_calc(self.rotate, self.speed+self.acceleration)))
+			self.rect[0] = self.x
+			self.rect[1] = self.y
+			if self.speed == 1:
+				display_surf.blit(self.thrust_final, (self.move_calc(self.rotate, self.speed+self.acceleration)))
+				if self.acceleration < self.max_acc:
+					if self.counter2 < 10:
+						self.counter2 +=1
+					else:
+						self.counter2 = 0
+						self.acceleration += 1
+			else:
+				self.acceleration = 0
+			if self.is_shooting == True:
+				self.shoot(display_surf)
+			if self.thrust_override == True:
+				display_surf.blit(self.thrust_final, (self.x, self.y))
 		else:
-			self.acceleration = 0
-		if self.is_shooting == True:
-			self.shoot(display_surf)
-		if self.thrust_override == True:
-			display_surf.blit(self.thrust_final, (self.x, self.y))
+			#Disable ai at this point. Want ship to continue to fly until it's off screen to save memory.
+			self.speed = 1
+			display_surf.blit(self.ship_destroyed_final, (self.move_calc(self.rotate, self.speed)))
+			self.rect[0] = self.x
+			self.rect[1] = self.y
+			self.current_bullet = None
 	def move_calc(self, rotation, speed):
 		rads = math.radians(rotation)
 		self.y = -math.sin(rads) * speed + self.y
@@ -154,8 +173,12 @@ class fighter:
 			if (self.counter == 0):
 				self.current_bullet.display(display_surf, self.move_calc_bullet(self.rotate, self.proj_speed))
 				self.counter += 1
+				self.current_bullet.rect[0] = self.x2+5
+				self.current_bullet.rect[1] = self.y2+5
 			else:
 				self.current_bullet.display(display_surf, self.move_calc_bullet_stat(self.stat_rotate, self.proj_speed))
+				self.current_bullet.rect[0] = self.x2+5
+				self.current_bullet.rect[1] = self.y2+5
 		else:
 			self.current_bullet = None
 			self.is_shooting = False
@@ -163,6 +186,7 @@ class fighter:
 		
 class Bullet:
 	def __init__(self, damage = 1):
+		self.name = 'bullet'
 		self.__dict__.update(locals())
 		self.ship_bullet = pygame.image.load('img/bullet_1.png')
 		self.distance = 0

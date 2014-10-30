@@ -47,10 +47,10 @@ def move_camera(list):
 
 test = graphical_effects.stars()
 fighter_test = fighters.fighter('2', '1', 5, 4, 1)
-fighter1 = fighters.fighter('2', '1', 5, 4, 2)
-fighter2 = fighters.fighter('2', '1', 5, 4, 3)
-fighter3 = fighters.fighter('1', '1', 5, 4, 4)
-fighter4 = fighters.fighter('1', '1', 5, 4, 0)
+fighter1 = fighters.fighter('1', '1', 5, 4, 1)
+fighter2 = fighters.fighter('2', '1', 5, 4, 1)
+fighter3 = fighters.fighter('1', '1', 5, 4, 1)
+fighter4 = fighters.fighter('1', '1', 5, 15, 0)
 
 
 while True:
@@ -64,14 +64,15 @@ while True:
 		fighter_test.speed = 1.0
 	if keys_pressed[pygame.K_s]:
 		fighter_test.speed = -1.0
+	if keys_pressed[pygame.K_e]:
+		fighter4.target = fighter_test
 
-	fighters.squadron(DISPLAYSURF, fighter_test, fighter1, fighter2, fighter3, fighter4)
+	fighters.squadron(DISPLAYSURF, fighter_test, fighter1, fighter2, fighter3)
 	
 		
 
 	if keys_pressed[pygame.K_SPACE]:
 		fighter_test.is_shooting = True
-		fighter2.is_shooting = True
 		
 	collision_detection(fighter_test, fighter1, fighter2, fighter3, fighter4)
 	

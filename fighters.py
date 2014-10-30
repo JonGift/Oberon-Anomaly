@@ -87,7 +87,7 @@ class fighter:
 		self.thruster = pygame.image.load('img/f_thrust_' + self.thruster + '.png')
 		self.ship_destroyed = pygame.image.load('img/fighter_' + self.ship_type + '_destroyed.png')
 		self.speed = 0
-		self.hp = 10
+		self.hp = 1
 		self.x = 0
 		self.y = 0
 		self.x2 = 0
@@ -100,12 +100,15 @@ class fighter:
 		self.thrust_final = self.thruster
 		self.counter = 0
 		self.counter2 = 0
+		self.counter3 = 0
 		self.acceleration = 0
 		self.max_acc = max_acc
 		self.proj_speed = proj_speed
 		self.formation = False
 		self.thrust_override = False
 		self.rect = self.ship.get_rect()
+		self.target = None
+		
 		
 	
 	def update_ship(self, display_surf):
@@ -114,6 +117,16 @@ class fighter:
 				self.rotate = 360 + self.rotate
 			if self.rotate > 360:
 				self.rotate = self.rotate - 360
+			if self.target is not None:
+				self.target = self.target
+				self.target_enemy()
+				self.speed = 1
+				if self.target.hp < 1:
+					self.target = None
+					self.speed = 0
+			else:
+				self.target = None
+				
 			self.ship_final = pygame.transform.rotate(self.ship, self.rotate)
 			self.thrust_final = pygame.transform.rotate(self.thruster, self.rotate)
 			self.ship_destroyed_final = pygame.transform.rotate(self.ship_destroyed, self.rotate)
@@ -183,6 +196,61 @@ class fighter:
 			self.current_bullet = None
 			self.is_shooting = False
 			self.counter = 0
+		
+		
+	def target_enemy(self):
+		
+		x_difference = (self.target.x) - (self.x)
+		y_difference = (self.target.y) - (self.y)
+		
+		def pythag_absolute(numb):
+			new_numb = 0
+			if numb > 0:
+				new_numb = 1
+			elif numb < 0:
+				new_numb = -1
+				
+			final_numb = abs(numb * numb) # * new_numb
+			
+			return final_numb
+		
+		x = pythag_absolute(x_difference)
+		y = pythag_absolute(y_difference)
+		hyp = (x + y)
+		hyp = math.sqrt(hyp)
+		radian_calc = 360
+		
+		for x in range(radian_calc):
+			rads = math.radians(x+1)
+			f_point_bs = round((math.cos(rads)), 1)
+			f_point_bs_diff = round((x_difference / hyp), 1)
+			f_point_bs2 = round((math.sin(rads)), 1)
+			f_point_bs2_diff = round((-y_difference / hyp), 1)
+			if f_point_bs == f_point_bs_diff:
+				if f_point_bs2 == f_point_bs2_diff:
+					if x+1 != self.rotate:
+						change = 0
+						difference = self.rotate - (x+1)
+						about_x1 = x+3
+						about_x2 = x-3
+						if difference < 0:
+							change = 2
+						else:
+							change = -2
+							
+						if(abs(difference) > 180):
+							change = 0 - change
+						
+						if(self.rotate < about_x1):
+							if(self.rotate > about_x2):
+								self.is_shooting = True
+						
+						
+						self.rotate += change
+						return
+			
+		
+		
 		
 class Bullet:
 	def __init__(self, damage = 1):

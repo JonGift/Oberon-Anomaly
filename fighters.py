@@ -1,8 +1,17 @@
 import pygame, sys
 import math
+import random
 from pygame.locals import * 
-
+#Add dogfight code. Improve ai. Improve speed and friction.
 #Fun fact: the following code is as readable as the mindfuck language written in pig latin.
+
+def get_alpha_hitmask(image, rect, alpha=0):
+    mask=[]
+    for x in range(rect.width):
+        mask.append([])
+        for y in range(rect.height):
+            mask[x].append(not image.get_at((x,y))[3]==alpha)
+    return mask
 
 def rotate_checker(commander, ship):
 	c_x = round(commander.x, 0)
@@ -62,7 +71,7 @@ def squadron(display_surf, commander, *args):
 					squad[i].rotate = commander.rotate
 					counter = 0
 					altitude = altitude * 2
-				if commander.speed == 1:
+				if commander.speed > 0:
 					squad[i].thrust_override = True
 				else:
 					squad[i].thrust_override = False
@@ -79,7 +88,6 @@ def squadron(display_surf, commander, *args):
 
 class fighter:
 	def __init__(self, ship_type = '1', thruster = '1', max_acc = 0, proj_speed = 3, team = 0):
-		self.name = 'fighter'
 		self.ship_type = ship_type
 		self.thruster = thruster
 		self.team = team
@@ -87,7 +95,7 @@ class fighter:
 		self.thruster = pygame.image.load('img/f_thrust_' + self.thruster + '.png')
 		self.ship_destroyed = pygame.image.load('img/fighter_' + self.ship_type + '_destroyed.png')
 		self.speed = 0
-		self.hp = 1
+		self.hp = 5
 		self.x = 0
 		self.y = 0
 		self.x2 = 0
@@ -107,36 +115,52 @@ class fighter:
 		self.formation = False
 		self.thrust_override = False
 		self.rect = self.ship.get_rect()
+		self.ship = pygame.Surface.convert_alpha(self.ship)
+		self.hitmask = pygame.mask.from_surface(self.ship)
+		self.blank = 0
 		self.target = None
-		
+		self.range = 300
+		self.is_selected = False
+		self.moved_by_player = False
+		self.hitmask = get_alpha_hitmask(self.ship,self.rect)
+		self.rotate_static = 0
+		self.static_rotate_counter = 0
+		self.rotate_random = random.randint(-10,10)
 		
 	
 	def update_ship(self, display_surf):
+		self.rect[0] = self.x
+		self.rect[1] = self.y
 		if self.hp > 0:
 			if self.rotate < 0:
 				self.rotate = 360 + self.rotate
 			if self.rotate > 360:
 				self.rotate = self.rotate - 360
 			if self.target is not None:
-				self.target = self.target
-				self.target_enemy()
-				self.speed = 1
-				if self.target.hp < 1:
-					self.target = None
-					self.speed = 0
+				if self.moved_by_player == False:
+					self.target = self.target
+					self.target_enemy(self.target)
+					if self.target.speed == 0:
+						self.speed = .2
+					else:
+						self.speed = 1
+					if self.target.target is not None:
+						if self.target.target == self:
+							#TODO: Dogfight anybody?
+							pass
+					if self.target.hp < 1:
+						self.target = None
+						self.speed = 0
 			else:
 				self.target = None
 				
 			self.ship_final = pygame.transform.rotate(self.ship, self.rotate)
 			self.thrust_final = pygame.transform.rotate(self.thruster, self.rotate)
-			self.ship_destroyed_final = pygame.transform.rotate(self.ship_destroyed, self.rotate)
 			display_surf.blit(self.ship_final, (self.move_calc(self.rotate, self.speed+self.acceleration)))
-			self.rect[0] = self.x
-			self.rect[1] = self.y
-			if self.speed == 1:
-				display_surf.blit(self.thrust_final, (self.move_calc(self.rotate, self.speed+self.acceleration)))
+			if self.speed > 0:
+				display_surf.blit(self.thrust_final, (self.move_calc(self.rotate, self.speed+(self.acceleration*self.speed))))
 				if self.acceleration < self.max_acc:
-					if self.counter2 < 10:
+					if self.counter2 < 20:
 						self.counter2 +=1
 					else:
 						self.counter2 = 0
@@ -148,11 +172,13 @@ class fighter:
 			if self.thrust_override == True:
 				display_surf.blit(self.thrust_final, (self.x, self.y))
 		else:
-			#Disable ai at this point. Want ship to continue to fly until it's off screen to save memory.
+			if self.static_rotate_counter == 0:
+				self.rotate_static = self.rotate
+				self.static_rotate_counter += 1
+			self.ship_destroyed_final = pygame.transform.rotate(self.ship_destroyed, self.rotate)
 			self.speed = 1
-			display_surf.blit(self.ship_destroyed_final, (self.move_calc(self.rotate, self.speed)))
-			self.rect[0] = self.x
-			self.rect[1] = self.y
+			self.rotate += (self.rotate_random)*.1
+			display_surf.blit(self.ship_destroyed_final, (self.move_calc(self.rotate_static, self.speed)))
 			self.current_bullet = None
 	def move_calc(self, rotation, speed):
 		rads = math.radians(rotation)
@@ -198,10 +224,10 @@ class fighter:
 			self.counter = 0
 		
 		
-	def target_enemy(self):
+	def target_enemy(self, target):
 		
-		x_difference = (self.target.x) - (self.x)
-		y_difference = (self.target.y) - (self.y)
+		x_difference = (target.x) - (self.x)
+		y_difference = (target.y) - (self.y)
 		
 		def pythag_absolute(numb):
 			new_numb = 0
@@ -234,16 +260,17 @@ class fighter:
 						about_x1 = x+3
 						about_x2 = x-3
 						if difference < 0:
-							change = 2
+							change = 5
 						else:
-							change = -2
+							change = -5
 							
 						if(abs(difference) > 180):
 							change = 0 - change
-						
-						if(self.rotate < about_x1):
-							if(self.rotate > about_x2):
-								self.is_shooting = True
+						if self.target is not None:
+							if(self.rotate < about_x1):
+								if(self.rotate > about_x2):
+									if hyp <= self.range:
+										self.is_shooting = True
 						
 						
 						self.rotate += change

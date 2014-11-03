@@ -4,7 +4,6 @@ from pygame.locals import *
 class stars:
 	def __init__(self, color = 'yellow'):
 		self.color = color
-		self.stars = pygame.image.load('img/star_' + self.color + '.png')
 		self.starfield = pygame.image.load('img/star_field_' + self.color + '.png')
 		self.x = 10
 		self.y = 10

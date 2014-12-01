@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame, sys
 from pygame.locals import * 
 import ship_generation
@@ -103,7 +104,7 @@ fighter2 = fighters.fighter('2', '1', 1, 5, 1)
 fighter3 = fighters.fighter('1', '1', 1, 5, 0)
 fighter4 = fighters.fighter('1', '1', 1, 5, 0)
 
-frigate_test = frigates.Frigate('1','1')
+frigate_test = frigates.Frigate('2','2')
 
 fighter_list = []
 fighter_list.append(fighter1)
@@ -117,7 +118,14 @@ while True:
 	fighter_test.speed = 0
 	if keys_pressed[pygame.K_e]:
 		fighter4.target = fighter_test
-
+	if keys_pressed[pygame.K_w]:
+		frigate_test.speed = 1
+	if keys_pressed[pygame.K_s]:
+		frigate_test.speed = -1
+	if keys_pressed[pygame.K_d]:
+		frigate_test.rotation -= 1
+	if keys_pressed[pygame.K_a]:
+		frigate_test.rotation += 1
 	select(fighter_test, pointer, fighter_list)
 	fighters.squadron(DISPLAYSURF, fighter_test, fighter1, fighter2)
 	fighters.squadron(DISPLAYSURF, fighter4, fighter3)

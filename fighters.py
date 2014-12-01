@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame, sys
 import math
 import random

@@ -1,4 +1,5 @@
 from __future__ import division
+from copy import deepcopy
 import pygame, sys
 from pygame.locals import * 
 import ship_generation
@@ -7,7 +8,6 @@ import fighters
 import frigates
 
 #Use pixel perfect collision
-
 
 FPS = 30
 fpsClock = pygame.time.Clock()
@@ -62,15 +62,13 @@ def move_camera(list):
 			list[i].y -= 3
 
 class point_location():
-	def __init__(self):
-		self.x = 0
-		self.y = 0
+	def __init__(self, x = 0, y = 0):
+		self.x = x
+		self.y = y
 			
 def select(var, target_loc, target_list):
-	#This function is not working. Clean up and then ask Benjamin for help.
-	temp_pressed = pygame.key.get_pressed()
 	if var.hp > 0:
-		if temp_pressed[pygame.K_j]:
+		if pygame.mouse.get_pressed()[0]:
 			if var.rect.collidepoint(pygame.mouse.get_pos()) == True:
 				if var.is_selected != True:
 					var.is_selected = True
@@ -81,7 +79,7 @@ def select(var, target_loc, target_list):
 				else:
 					var.is_selected = False
 		#if pygame.mouse.get_pressed()[2]:
-		if temp_pressed[pygame.K_k]:
+		if pygame.mouse.get_pressed()[2]:
 			if var.is_selected == True:
 				for x in range(len(target_list)):
 					if target_list[x].rect.collidepoint(pygame.mouse.get_pos()):
@@ -95,23 +93,11 @@ def select(var, target_loc, target_list):
 					var.moved_by_player = True
 					target_loc.x = pygame.mouse.get_pos()[0]
 					target_loc.y = pygame.mouse.get_pos()[1]
-		if var.moved_by_player == True:
-			#Make a personal variable that each individual ship holds so that they can go to different spots.
-			
+		if var.moved_by_player == True:			
 			var.speed = 1
-			if var.target_loc_personal != None:
-				print(var.target_loc_personal.x, target_loc.x)
 			if var.is_selected == True:
-				if var.target_loc_personal != None:
-					var.target_enemy(var.target_loc_personal)
-				else:
-					var.target_loc_personal = target_loc
-					print(var.name + ' is now targetting something')
-					print(var.name + ' is now targetting something')
-					print(var.name + ' is now targetting something')
-					print(var.name + ' is now targetting something')
-					print(var.name + ' is now targetting something')
-					var.target_enemy(var.target_loc_personal)
+				var.target_loc_personal = deepcopy(target_loc)
+				var.target_enemy(var.target_loc_personal)
 			else:
 				var.target_enemy(var.target_loc_personal)
 			if abs(var.x - target_loc.x) < 10:
@@ -145,14 +131,6 @@ while True:
 	fighter_test.speed = 0
 	if keys_pressed[pygame.K_e]:
 		fighter4.target = fighter_test
-	if keys_pressed[pygame.K_w]:
-		frigate_test.speed = 1
-	if keys_pressed[pygame.K_s]:
-		frigate_test.speed = -1
-	if keys_pressed[pygame.K_d]:
-		frigate_test.rotation -= 1
-	if keys_pressed[pygame.K_a]:
-		frigate_test.rotation += 1
 	select(frigate_test, pointer, fighter_list)
 	select(fighter_test, pointer, fighter_list)
 	fighters.squadron(DISPLAYSURF, fighter_test, fighter1, fighter2)

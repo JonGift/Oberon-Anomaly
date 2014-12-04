@@ -129,7 +129,7 @@ class Frigate:
 			self.rotation = self.rotation - 360
 		self.rect.center = [self.x, self.y]
 		if self.target != None:
-			self.move_calc(self.target)
+			pass
 		self.rotate()
 		self.move_calc()
 		self.display_surf.blit(self.ship_final, (self.rect))

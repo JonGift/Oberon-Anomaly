@@ -89,6 +89,7 @@ def squadron(display_surf, commander, *args):
 
 class fighter:
 	def __init__(self, ship_type = '1', thruster = '1', max_acc = 0, proj_speed = 3, team = 0):
+		self.name = ('Temp Fighter Name')
 		self.ship_type = ship_type
 		self.thruster = thruster
 		self.team = team
@@ -127,6 +128,7 @@ class fighter:
 		self.rotate_static = 0
 		self.static_rotate_counter = 0
 		self.rotate_random = random.randint(-10,10)
+		self.target_loc_personal = None
 		
 	
 	def update_ship(self, display_surf):
@@ -260,10 +262,12 @@ class fighter:
 						difference = self.rotate - (x+1)
 						about_x1 = x+3
 						about_x2 = x-3
-						if difference < 0:
-							change = 5
-						else:
+						if difference  <= 5 and difference >= -5:
+							change = 0
+						elif difference > 5:
 							change = -5
+						else:
+							change = 5
 							
 						if(abs(difference) > 180):
 							change = 0 - change

@@ -67,21 +67,28 @@ class point_location():
 		self.y = 0
 			
 def select(var, target_loc, target_list):
+	#This function is not working. Clean up and then ask Benjamin for help.
+	temp_pressed = pygame.key.get_pressed()
 	if var.hp > 0:
-		if pygame.mouse.get_pressed()[0]:
-			if var.rect.collidepoint(pygame.mouse.get_pos()):
+		if temp_pressed[pygame.K_j]:
+			if var.rect.collidepoint(pygame.mouse.get_pos()) == True:
 				if var.is_selected != True:
 					var.is_selected = True
 			else:
-				var.is_selected = False
-		if pygame.mouse.get_pressed()[2]:
+				for x in range(len(target_list)):
+					if target_list[x].rect.collidepoint(pygame.mouse.get_pos()):
+						var.is_selected = True
+				else:
+					var.is_selected = False
+		#if pygame.mouse.get_pressed()[2]:
+		if temp_pressed[pygame.K_k]:
 			if var.is_selected == True:
 				for x in range(len(target_list)):
 					if target_list[x].rect.collidepoint(pygame.mouse.get_pos()):
 						if target_list[x].team != var.team:
 							if target_list[x].hp > 0:
 								var.target = target_list[x]
-								var.move_by_player = False
+								var.moved_by_player = False
 								break
 				else:
 					var.target = None
@@ -89,12 +96,30 @@ def select(var, target_loc, target_list):
 					target_loc.x = pygame.mouse.get_pos()[0]
 					target_loc.y = pygame.mouse.get_pos()[1]
 		if var.moved_by_player == True:
-			var.target_enemy(target_loc)
+			#Make a personal variable that each individual ship holds so that they can go to different spots.
+			
 			var.speed = 1
+			if var.target_loc_personal != None:
+				print(var.target_loc_personal.x, target_loc.x)
+			if var.is_selected == True:
+				if var.target_loc_personal != None:
+					var.target_enemy(var.target_loc_personal)
+				else:
+					var.target_loc_personal = target_loc
+					print(var.name + ' is now targetting something')
+					print(var.name + ' is now targetting something')
+					print(var.name + ' is now targetting something')
+					print(var.name + ' is now targetting something')
+					print(var.name + ' is now targetting something')
+					var.target_enemy(var.target_loc_personal)
+			else:
+				var.target_enemy(var.target_loc_personal)
 			if abs(var.x - target_loc.x) < 10:
 				if abs(var.y - target_loc.y) < 10:
 					var.moved_by_player = False
+					var.target_loc_personal = None
 					var.speed = 0
+
 
 test = graphical_effects.stars()
 pointer = point_location()
@@ -104,7 +129,7 @@ fighter2 = fighters.fighter('2', '1', 1, 5, 1)
 fighter3 = fighters.fighter('1', '1', 1, 5, 0)
 fighter4 = fighters.fighter('1', '1', 1, 5, 0)
 
-frigate_test = frigates.Frigate('2','2')
+frigate_test = frigates.Frigate('2','2', DISPLAYSURF)
 
 fighter_list = []
 fighter_list.append(fighter1)
@@ -114,6 +139,8 @@ fighter_list.append(fighter4)
 temp_list = [fighter_test, fighter1, fighter2, fighter3, fighter4, frigate_test]
 
 while True:
+	print('Frigate: ' + str(frigate_test.is_selected) + ' Fighter: ' + str(fighter_test.is_selected))
+	print(frigate_test.target_loc_personal, fighter_test.target_loc_personal)
 	keys_pressed = pygame.key.get_pressed()
 	fighter_test.speed = 0
 	if keys_pressed[pygame.K_e]:
@@ -126,6 +153,7 @@ while True:
 		frigate_test.rotation -= 1
 	if keys_pressed[pygame.K_a]:
 		frigate_test.rotation += 1
+	select(frigate_test, pointer, fighter_list)
 	select(fighter_test, pointer, fighter_list)
 	fighters.squadron(DISPLAYSURF, fighter_test, fighter1, fighter2)
 	fighters.squadron(DISPLAYSURF, fighter4, fighter3)
@@ -136,7 +164,7 @@ while True:
 	collision_detection_fighters(fighter_test, fighter1, fighter2, fighter3, fighter4)
 	
 	DISPLAYSURF.blit(starfield, (0,0))
-	frigate_test.update_ship(DISPLAYSURF)
+	frigate_test.update_ship()
 	fighter_test.update_ship(DISPLAYSURF)
 	fighter1.update_ship(DISPLAYSURF)
 	fighter2.update_ship(DISPLAYSURF)

@@ -42,7 +42,7 @@ class Frigate:
 		self.target = None
 		self.team = 2
 		self.target_loc_personal = None
-		#help I don't understand
+		self.current_bullet = None
 		
 		self.rotation = 0
 		self.hitmask = get_alpha_hitmask(self.ship_final, self.rect, 0)

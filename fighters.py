@@ -91,6 +91,7 @@ class fighter:
 	def __init__(self, ship_type = '1', thruster = '1', max_acc = 0, proj_speed = 3, team = 0):
 		self.name = ('Temp Fighter Name')
 		self.ship_type = ship_type
+		self.type_name = 'Fighter'
 		self.thruster = thruster
 		self.team = team
 		self.ship = pygame.image.load('img/fighter_' + self.ship_type + '.png')

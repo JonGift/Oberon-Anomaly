@@ -4,10 +4,9 @@ import pygame, sys
 from pygame.locals import * 
 import ship_generation
 import graphical_effects
+import ai
 import fighters
 import frigates
-
-#Use pixel perfect collision
 
 FPS = 30
 fpsClock = pygame.time.Clock()
@@ -45,41 +44,51 @@ def collision_detection_fighters(*args):
 		
 
 
-def move_camera(list):
+def move_camera(list):	
 	keys = pygame.key.get_pressed()
 	
 	if keys[pygame.K_LEFT]:
 		for i in range(len(list)):
+			if list[i].current_bullet != None:
+				list[i].x2 += 3
 			list[i].x += 3
 	if keys[pygame.K_RIGHT]:
 		for i in range(len(list)):
+			if list[i].current_bullet != None:
+				list[i].x2 -= 3
 			list[i].x -= 3
 	if keys[pygame.K_UP]:
 		for i in range(len(list)):
+			if list[i].current_bullet != None:
+				list[i].y2 += 3
 			list[i].y += 3
 	if keys[pygame.K_DOWN]:
 		for i in range(len(list)):
+			if list[i].current_bullet != None:
+				list[i].y2 -= 3
 			list[i].y -= 3
 
 class point_location():
 	def __init__(self, x = 0, y = 0):
 		self.x = x
 		self.y = y
+		self.current_bullet = None
 			
 def select(var, target_loc, target_list):
+	#still a little buggy. Maybe it's lag
+	key = pygame.key.get_pressed()
 	if var.hp > 0:
-		if pygame.mouse.get_pressed()[0]:
+		if pygame.mouse.get_pressed()[0] or key[pygame.K_j]:
 			if var.rect.collidepoint(pygame.mouse.get_pos()) == True:
-				if var.is_selected != True:
-					var.is_selected = True
+				var.is_selected = True
 			else:
 				for x in range(len(target_list)):
 					if target_list[x].rect.collidepoint(pygame.mouse.get_pos()):
 						var.is_selected = True
+						break
 				else:
 					var.is_selected = False
-		#if pygame.mouse.get_pressed()[2]:
-		if pygame.mouse.get_pressed()[2]:
+		if pygame.mouse.get_pressed()[2] or key[pygame.K_k]:
 			if var.is_selected == True:
 				for x in range(len(target_list)):
 					if target_list[x].rect.collidepoint(pygame.mouse.get_pos()):
@@ -93,10 +102,10 @@ def select(var, target_loc, target_list):
 					var.moved_by_player = True
 					target_loc.x = pygame.mouse.get_pos()[0]
 					target_loc.y = pygame.mouse.get_pos()[1]
+					var.target_loc_personal = deepcopy(target_loc)
 		if var.moved_by_player == True:			
 			var.speed = 1
 			if var.is_selected == True:
-				var.target_loc_personal = deepcopy(target_loc)
 				var.target_enemy(var.target_loc_personal)
 			else:
 				var.target_enemy(var.target_loc_personal)
@@ -122,15 +131,16 @@ fighter_list.append(fighter1)
 fighter_list.append(fighter2)
 fighter_list.append(fighter3)
 fighter_list.append(fighter4)
-temp_list = [fighter_test, fighter1, fighter2, fighter3, fighter4, frigate_test]
+ships_list = [fighter_test, fighter1, fighter2, fighter3, fighter4, frigate_test]
+temp_list = [fighter_test, fighter1, fighter2, fighter3, fighter4, frigate_test, pointer]
 
 while True:
-	print('Frigate: ' + str(frigate_test.is_selected) + ' Fighter: ' + str(fighter_test.is_selected))
-	print(frigate_test.target_loc_personal, fighter_test.target_loc_personal)
+	ai.ai_target_enemy(fighter_test, ships_list)
 	keys_pressed = pygame.key.get_pressed()
 	fighter_test.speed = 0
 	if keys_pressed[pygame.K_e]:
 		fighter4.target = fighter_test
+	print('wop')
 	select(frigate_test, pointer, fighter_list)
 	select(fighter_test, pointer, fighter_list)
 	fighters.squadron(DISPLAYSURF, fighter_test, fighter1, fighter2)

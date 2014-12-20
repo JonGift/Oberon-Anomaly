@@ -1,0 +1,41 @@
+Group 1: Terraverse Federation
+Bonus: Engineers of the Future
+All ships slowly regenerate based around max health. 
+Weapons do additional damaged based on enemy health.
+
+The Terraverse Federation is a faction that dedicates itself to finding intelligent life in the universe. Largely focused on scientific pursuits, the Federation considers itself to be the last democratic society with long-term goals.
+
+Group 2: Magno Geno Cartus
+Bonus: Unwavering Loyalty
+After a fighter is destroyed, another fighter is immediately produced for free. 5 second cooldown.
+Captains gain exp over time, and their level caps are doubled.
+
+The MGC is an entirely autocratic society. After unlocking the potential of cloning, the vast majority of the population is mentally indoctrinated by the emperor. The MGC believes it will be able to conquer the universe by the end of the millenium.
+
+Group 3: Origai Centauri
+Bonus: Combined History
+Enemy weapons of mass destruction have no affect on allied ships.
+Defense platforms can be improved twice as many times.
+
+A faction that forbids outsiders, their entire culture is based around a religion created on 20th century Earth. Defectors are scarce, and Centauri prisoners end up dead before they can be questioned. Their goals are unknown.
+
+Group 4: Travelers Conglomerate
+Bonus: Together We Stand
+Ships gain bonuses according to how many allies are around them.
+Cruiser class ships and larger spread hull damage to eachother instead of taking individual damage.
+
+An informal group of many different ships and people, the Conglomerate attempts to limit the usage of Oberonite due to religious and cultural beliefs. They prefer colonization over space travel, and most of their modifications are largely aesthetic. The main reason that they remain a strong power is because of their numbers.
+
+Group 5: AMI
+Bonus: Artificial Evolution
+When a ship destroys an enemy, it can recover scrap from the hull of the ship, improving itself.
+When an allied ship is destroyed, another ship of equal size can spend time to repair it before a short period of time elapses.
+
+Little is known about the AMI or where they came from. Reports indicate that the AMI ships have no cockpits, and the interior of some of the ships have no organic matter. The AMI is theorized to be controlled by an AI.
+
+Group 6: Oberon Infinium
+Bonus: Oberon Technology
+Ships hulls are reduced by 99%. Shields are improved massively and gain special bonuses.
+The commander gains the ability to create spacial anomalies upon the battlefield.
+
+Originally humans, their genetic code has been mutated to the point of alienation. After the Oberon event, a strange element was left behind that presented nearly limitless power. This faction has perfected the use of the element at the cost of their humanity and their original goals.

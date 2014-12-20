@@ -1,4 +1,1 @@
-
-
-def ship_gen():
-	print ('U GOT THE EBOLA')
+#Temporary file until future
